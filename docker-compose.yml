@@ -1,0 +1,12 @@
+version: '3'
+services:
+  bot:
+    image: ghcr.io/timmy-web/poe-bot:latest
+    container_name: poebot
+    environment:
+      TELEGRAM_BOT_TOKEN: "<Your Telegram Bot Token From Bot Father>"
+      POE_API_KEY: "<Your Poe Api Key>"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    stdin_open: true
+    tty: true

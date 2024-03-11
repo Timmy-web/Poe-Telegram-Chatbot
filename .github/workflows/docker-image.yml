@@ -1,0 +1,32 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: set lower case owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+      env:
+        OWNER: '${{ github.repository_owner }}'
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ghcr.io/${{ env.OWNER_LC }}/poe-bot:${{ github.sha }}
+
+    - name: Log in to GitHub Packages
+      run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    
+    - name: Push the Docker image with SHA tag
+      run: docker push ghcr.io/${{ env.OWNER_LC }}/poe-bot:${{ github.sha }}
+    
+    - name: Tag the Docker image with latest
+      run: docker tag ghcr.io/${{ env.OWNER_LC }}/poe-bot:${{ github.sha }} ghcr.io/${{ env.OWNER_LC }}/poe-bot:latest
+    
+    - name: Push the Docker image with latest tag
+      run: docker push ghcr.io/${{ env.OWNER_LC }}/poe-bot:latest
